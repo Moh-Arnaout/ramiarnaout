@@ -1,0 +1,167 @@
+{
+  "categories": [
+    {
+      "id": "private-villas-resorts",
+      "name": "PRIVATE VILLAS & RESORTS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785134873/rami_arnaout_portfolio/wkyuv2catcrcgpquw77a.png",
+      "imagePublicId": "rami_arnaout_portfolio/wkyuv2catcrcgpquw77a",
+      "imageResourceType": "image",
+      "imagePosition": "15% 50%"
+    },
+    {
+      "id": "housing-compounds",
+      "name": "HOUSING & COMPOUNDS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785134901/rami_arnaout_portfolio/sbuhrem3zr4kk0unjqt3.png",
+      "imagePublicId": "rami_arnaout_portfolio/sbuhrem3zr4kk0unjqt3",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "urban-planning-landscape",
+      "name": "URBAN PLANNING / LANDSCAPE",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785134988/rami_arnaout_portfolio/x0dwhh53j4fq9tne8g2m.png",
+      "imagePublicId": "rami_arnaout_portfolio/x0dwhh53j4fq9tne8g2m",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "administrative-buildings",
+      "name": "ADMINISTRATIVE BUILDINGS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785134999/rami_arnaout_portfolio/nkqtylybgioa00prlgn2.png",
+      "imagePublicId": "rami_arnaout_portfolio/nkqtylybgioa00prlgn2",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "commercial-buildings",
+      "name": "COMMERCIAL BUILDINGS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135020/rami_arnaout_portfolio/ipmtad3fiy4t9mq9moz4.png",
+      "imagePublicId": "rami_arnaout_portfolio/ipmtad3fiy4t9mq9moz4",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "hospitals",
+      "name": "HOSPITALS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135040/rami_arnaout_portfolio/ojwtudsyn2loagnc2ghb.png",
+      "imagePublicId": "rami_arnaout_portfolio/ojwtudsyn2loagnc2ghb",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "educational-buildings",
+      "name": "EDUCATIONAL BUILDINGS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135055/rami_arnaout_portfolio/pmiw2tahwh6zjfc1hiwb.png",
+      "imagePublicId": "rami_arnaout_portfolio/pmiw2tahwh6zjfc1hiwb",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "hotels",
+      "name": "HOTELS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135064/rami_arnaout_portfolio/jm8pulinfsudgd5pyoyi.png",
+      "imagePublicId": "rami_arnaout_portfolio/jm8pulinfsudgd5pyoyi",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "mosques",
+      "name": "MOSQUES",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135072/rami_arnaout_portfolio/o902l0d0hdqmnpcigc3e.png",
+      "imagePublicId": "rami_arnaout_portfolio/o902l0d0hdqmnpcigc3e",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "museums",
+      "name": "MUSEUMS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135085/rami_arnaout_portfolio/ecbjzaigc1oqpvr7drow.png",
+      "imagePublicId": "rami_arnaout_portfolio/ecbjzaigc1oqpvr7drow",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    },
+    {
+      "id": "health-clubs",
+      "name": "HEALTH CLUBS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135097/rami_arnaout_portfolio/cr9azqwkxr6ycqbjasq6.png",
+      "imagePublicId": "rami_arnaout_portfolio/cr9azqwkxr6ycqbjasq6",
+      "imageResourceType": "image",
+      "imagePosition": "10% 50%"
+    },
+    {
+      "id": "restaurants",
+      "name": "RESTAURANTS",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1785135119/rami_arnaout_portfolio/s4xq5t93bgiewrfoutmx.png",
+      "imagePublicId": "rami_arnaout_portfolio/s4xq5t93bgiewrfoutmx",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    }
+  ],
+  "projects": [
+    {
+      "id": "1",
+      "title": "Aesthetic Glass Arch Canopy Office",
+      "description": "This cutting-edge commercial office building integrates a monumental concrete and glass sweeping arch canopy. Inspired by biological shapes, the architecture blends massive transparent structural glass walls with deep concrete overhangs to manage direct sunlight in hot climates. Inside, multi-floor glass atriums connect modern working areas with nature.",
+      "category": "",
+      "date": "2023 (1444 H)",
+      "location": "Amman, Jordan",
+      "images": [
+        "/uploads/project_1_main.png"
+      ],
+      "mainImage": "/uploads/project_1_main.png"
+    },
+    {
+      "id": "2",
+      "title": "Curved Steel Mesh Canopy Hall",
+      "description": "Designed for hosting large community gatherings and public events, this multi-purpose facility features a structural curved steel mesh envelope that flows down from the main roof deck. This mesh structure filters sunlight, providing a naturally ventilated, shaded courtyard space while reducing the thermal load on the internal glass-walled exhibition halls.",
+      "category": "",
+      "date": "2023 (1444 H)",
+      "location": "Amman, Jordan",
+      "images": [
+        "/uploads/project_2_main.png"
+      ],
+      "mainImage": "/uploads/project_2_main.png"
+    }
+  ],
+  "awards": [
+    {
+      "id": "36f80b57f9ffaf4c",
+      "project": " Amman Chamber of Industry",
+      "year": "2022",
+      "location": "Amman, Jordan",
+      "award": "1st Prize",
+      "office": "Rami Arnaout Architects",
+      "image": "/uploads/file-1784793340316-819834095.png"
+    },
+    {
+      "id": "07ca792dc441196f",
+      "project": "JEA head quarter",
+      "year": "2022",
+      "location": "Salt, Jordan",
+      "award": "1st Prize",
+      "office": "Rami Arnaout Architects",
+      "image": "/uploads/file-1784793241886-572992110.png"
+    },
+    {
+      "id": "f4907eb6a15ed4cb",
+      "project": "Arab Engineers Garden",
+      "year": "2022",
+      "location": "Amman, Jordan",
+      "award": "3rd Prize",
+      "office": "Rami Arnaout Architects",
+      "image": "/uploads/file-1784793468396-675117571.png"
+    },
+    {
+      "id": "55f4c84aae99ee15",
+      "project": "Arab Potash Research Center Competition",
+      "year": "2020",
+      "location": "Dead Sea, Jordan",
+      "award": "2nd Prize",
+      "office": "Rami Arnaout Architects",
+      "image": "https://res.cloudinary.com/jzexsx0o/image/upload/v1784967611/rami_arnaout_portfolio/ab7jgcf6xykvetotpoxr.png",
+      "imagePublicId": "rami_arnaout_portfolio/ab7jgcf6xykvetotpoxr",
+      "imageResourceType": "image",
+      "imagePosition": "50% 50%"
+    }
+  ]
+}
