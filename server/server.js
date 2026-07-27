@@ -709,13 +709,12 @@ app.get('*', (req, res) => {
   }
 });
 
-// Remove or modify the app.listen line at the bottom:
+// Remove serverless-http from here and just export app
 if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
     console.log(`Server is running locally on port ${PORT}`);
   });
 }
 
-// Export the serverless handler for Netlify Functions
-const serverless = require('serverless-http');
-module.exports.handler = serverless(app);
+export default app;

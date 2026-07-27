@@ -1,3 +1,4 @@
-// Add .js to explicitly resolve the file rather than the directory
-const server = require('../server.js');
-module.exports = server;
+import serverless from 'serverless-http';
+import app from '../server.js';
+
+export const handler = serverless(app);
