@@ -6,6 +6,12 @@
 [build.processing]
   skip_processing = true
 
+[build.processing.html]
+  pretty_urls = false
+
+[build.processing.forms]
+  html_disable = true
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["server/**"]
