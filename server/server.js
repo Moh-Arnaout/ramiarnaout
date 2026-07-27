@@ -700,7 +700,7 @@ app.delete('/api/awards/:id', async (req, res) => {
 });
 
 // SPA Catch-all Route
-app.get('(.*)', (req, res) => {
+app.get('/*splat', (req, res) => {
   const clientIndexPath = path.join(__dirname, '../client/dist/index.html');
   if (require('fs').existsSync(clientIndexPath)) {
     res.sendFile(clientIndexPath);
