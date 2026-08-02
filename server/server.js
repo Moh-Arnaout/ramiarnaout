@@ -3,9 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import crypto from 'crypto';
-import { existsSync, readFileSync, unlink } from 'fs';
+import { existsSync, unlink } from 'fs';
 import { v2 as cloudinary } from 'cloudinary';
 import { fileURLToPath } from 'url';
+import fallbackPortfolioData from './data/projects.json' with { type: 'json' };
 
 // Import your custom config modules
 import upload from './config/cloudinary.js';
@@ -14,9 +15,6 @@ import supabase from './config/supabase.js';
 // Recreate __dirname and __filename for ES Module scope
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const fallbackPortfolioData = JSON.parse(
-  readFileSync(path.join(__dirname, 'data', 'projects.json'), 'utf8')
-);
 
 dotenv.config();
 
