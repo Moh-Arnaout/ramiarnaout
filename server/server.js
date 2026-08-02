@@ -1,11 +1,18 @@
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const crypto = require('crypto');
-const dotenv = require('dotenv');
-const cloudinary = require('cloudinary').v2;
-const upload = require('./config/cloudinary');
-const supabase = require('./config/supabase');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import path from 'path';
+import crypto from 'crypto';
+import { v2 as cloudinary } from 'cloudinary';
+import { fileURLToPath } from 'url';
+
+// Import your custom config modules
+import upload from './config/cloudinary.js';
+import supabase from './config/supabase.js';
+
+// Recreate __dirname and __filename for ES Module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -710,11 +717,14 @@ app.get('/*splat', (req, res) => {
 });
 
 // Remove serverless-http from here and just export app
-// if (process.env.NODE_ENV !== 'production') {
-//   const PORT = process.env.PORT || 5000;
-//   app.listen(PORT, () => {
-//     console.log(`Server is running locally on port ${PORT}`);
-//   });
-// }
+// At the bottom of server/server.js:
+
+// Only run app.listen when NOT on Netlify serverless environment
+if (!process.env.NETLIFY && process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Backend local server running on http://localhost:${PORT}`);
+  });
+}
 
 export default app;
