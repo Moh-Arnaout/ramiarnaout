@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
 import crypto from 'crypto';
+import { existsSync, readFileSync, unlink } from 'fs';
 import { v2 as cloudinary } from 'cloudinary';
 import { fileURLToPath } from 'url';
 
@@ -13,6 +14,9 @@ import supabase from './config/supabase.js';
 // Recreate __dirname and __filename for ES Module scope
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const fallbackPortfolioData = JSON.parse(
+  readFileSync(path.join(__dirname, 'data', 'projects.json'), 'utf8')
+);
 
 dotenv.config();
 
@@ -141,6 +145,17 @@ function serializeAwardRow({ id, project, year, location, award, office, image, 
   };
 }
 
+function ensureSupabase(res) {
+  if (supabase) {
+    return true;
+  }
+
+  res.status(503).json({
+    error: 'Database configuration is unavailable in this deployment. Set Supabase environment variables to enable updates.'
+  });
+  return false;
+}
+
 async function removeStoredMedia({ url, publicId, resourceType }) {
   if (publicId) {
     try {
@@ -154,7 +169,7 @@ async function removeStoredMedia({ url, publicId, resourceType }) {
   if (url && url.startsWith('/uploads/')) {
     const filePath = path.join(__dirname, 'public', url);
     try {
-      await fs.unlink(filePath);
+      await unlink(filePath);
     } catch (err) {
       // Ignore missing local files
     }
@@ -167,6 +182,10 @@ async function removeStoredMedia({ url, publicId, resourceType }) {
 
 app.get('/api/categories', async (req, res) => {
   try {
+    if (!supabase) {
+      return res.json((fallbackPortfolioData.categories || []).map(normalizeCategoryRow));
+    }
+
     const { data, error } = await supabase
       .from('categories')
       .select('*')
@@ -182,6 +201,8 @@ app.get('/api/categories', async (req, res) => {
 app.post('/api/categories', upload.single('image'), async (req, res) => {
   let uploadedImage = null;
   try {
+    if (!ensureSupabase(res)) return;
+
     const { name, imagePosition } = req.body;
     if (!name || !name.trim()) {
       return res.status(400).json({ error: 'Category name is required' });
@@ -239,6 +260,8 @@ app.post('/api/categories', upload.single('image'), async (req, res) => {
 app.put('/api/categories/:id', upload.single('image'), async (req, res) => {
   let uploadedImage = null;
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
     const { name, imagePosition } = req.body;
 
@@ -298,6 +321,8 @@ app.put('/api/categories/:id', upload.single('image'), async (req, res) => {
 
 app.delete('/api/categories/:id', async (req, res) => {
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
 
     const { data: oldCat } = await supabase
@@ -344,6 +369,10 @@ app.delete('/api/categories/:id', async (req, res) => {
 
 app.get('/api/projects', async (req, res) => {
   try {
+    if (!supabase) {
+      return res.json((fallbackPortfolioData.projects || []).map(normalizeProjectRow));
+    }
+
     const { data, error } = await supabase
       .from('projects')
       .select('*')
@@ -360,6 +389,8 @@ app.get('/api/projects', async (req, res) => {
 app.post('/api/projects', upload.array('images', 10), async (req, res) => {
   let uploadedImages = [];
   try {
+    if (!ensureSupabase(res)) return;
+
     const { title, description, category, date, location, imagePositions } = req.body;
 
     if (!title || !category) {
@@ -422,6 +453,8 @@ app.post('/api/projects', upload.array('images', 10), async (req, res) => {
 app.put('/api/projects/:id', upload.array('images', 10), async (req, res) => {
   let newUploaded = [];
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
     const { title, description, category, date, location, existingImages, existingImagePublicIds, existingImageResourceTypes, imagePositions } = req.body;
 
@@ -502,6 +535,8 @@ app.put('/api/projects/:id', upload.array('images', 10), async (req, res) => {
 
 app.delete('/api/projects/:id', async (req, res) => {
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
 
     const { data: projectToDelete } = await supabase
@@ -545,6 +580,10 @@ app.delete('/api/projects/:id', async (req, res) => {
 
 app.get('/api/awards', async (req, res) => {
   try {
+    if (!supabase) {
+      return res.json((fallbackPortfolioData.awards || []).map(normalizeAwardRow));
+    }
+
     const { data, error } = await supabase
       .from('awards')
       .select('*')
@@ -561,6 +600,8 @@ app.get('/api/awards', async (req, res) => {
 app.post('/api/awards', upload.single('image'), async (req, res) => {
   let uploadedImage = null;
   try {
+    if (!ensureSupabase(res)) return;
+
     const { title, year, location, awardPlace, office, imagePosition } = req.body;
     if (!title || !year) {
       return res.status(400).json({ error: 'Title and Year are required' });
@@ -609,6 +650,8 @@ app.post('/api/awards', upload.single('image'), async (req, res) => {
 app.put('/api/awards/:id', upload.single('image'), async (req, res) => {
   let uploadedImage = null;
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
     const { title, year, location, awardPlace, office, imagePosition } = req.body;
 
@@ -672,6 +715,8 @@ app.put('/api/awards/:id', upload.single('image'), async (req, res) => {
 
 app.delete('/api/awards/:id', async (req, res) => {
   try {
+    if (!ensureSupabase(res)) return;
+
     const { id } = req.params;
 
     const { data: awardToDelete } = await supabase
@@ -709,7 +754,7 @@ app.delete('/api/awards/:id', async (req, res) => {
 // SPA Catch-all Route
 app.get('/*splat', (req, res) => {
   const clientIndexPath = path.join(__dirname, '../client/dist/index.html');
-  if (require('fs').existsSync(clientIndexPath)) {
+  if (existsSync(clientIndexPath)) {
     res.sendFile(clientIndexPath);
   } else {
     res.status(404).send('API endpoint not found (or React Build is missing)');
