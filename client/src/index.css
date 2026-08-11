@@ -276,6 +276,7 @@ section {
   position: relative;
   display: flex;
   align-items: center;
+  padding-top: 80px;
   overflow: hidden;
   background: radial-gradient(circle at 80% 20%, rgba(224, 83, 32, 0.08) 0%, transparent 60%);
 }
@@ -1373,8 +1374,127 @@ textarea {
     padding: 5rem 0;
   }
 
+  .navbar-container {
+    height: 72px;
+  }
+
+  .navbar.scrolled .navbar-container {
+    height: 60px;
+  }
+
+  .brand {
+    gap: 0.55rem;
+  }
+
+  .brand-logo {
+    height: 32px;
+  }
+
+  .brand-name {
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+  }
+
+  .brand-tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
+  }
+
+  .hero {
+    min-height: 100svh;
+    padding-top: 96px;
+  }
+
+  .hero-content {
+    max-width: 100%;
+  }
+
+  .hero-subtitle {
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .hero-subtitle::before {
+    width: 18px;
+  }
+
   .hero-title {
-    font-size: 2.8rem;
+    font-size: clamp(2.35rem, 11vw, 3rem);
+    margin-bottom: 1.2rem;
+  }
+
+  .hero-description {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    margin-bottom: 2.2rem;
+  }
+
+  .hero-cta {
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+    justify-content: center;
+    padding: 0.95rem 1.25rem;
+  }
+
+  .section-title-wrap {
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-size: 1.8rem;
+    line-height: 1.1;
+  }
+
+  .categories-container {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  .category-info {
+    padding: 1.3rem 1.2rem 1.5rem;
+  }
+
+  .category-name {
+    font-size: 1rem;
+    line-height: 1.15;
+    letter-spacing: 0.04em;
+    overflow-wrap: anywhere;
+  }
+
+  .category-count {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+  }
+
+  .portfolio-filters {
+    justify-content: flex-start;
+    gap: 0.7rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .filter-btn {
+    padding: 0.55rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .projects-grid {
+    gap: 1.2rem;
+  }
+
+  .project-details {
+    padding: 1.35rem;
+  }
+
+  .project-card-title {
+    font-size: 1.1rem;
+    line-height: 1.25;
   }
 
   .nav-links {
@@ -1406,6 +1526,50 @@ textarea {
   .modal-meta-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .project-details-page {
+    padding-top: 88px;
+  }
+
+  .project-details-title-area h1 {
+    font-size: 1.9rem;
+    line-height: 1.15;
+  }
+
+  .project-details-header {
+    align-items: flex-start;
+  }
+
+  .btn-back {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-gallery-container {
+    aspect-ratio: 1.15;
+  }
+
+  .modal-gallery-nav {
+    width: 40px;
+    height: 40px;
+  }
+
+  .modal-gallery-prev {
+    left: 0.75rem;
+  }
+
+  .modal-gallery-next {
+    right: 0.75rem;
+  }
+
+  .modal-thumbnails {
+    padding: 0.85rem 1rem;
+  }
+
+  .thumbnail-item {
+    width: 68px;
+    height: 48px;
   }
 }
 

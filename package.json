@@ -1,9 +1,10 @@
 {
   "name": "ramiarnaout-project",
   "version": "1.0.0",
+  "type": "module",
   "description": "Monorepo root for Rami Arnaout Architects portfolio website",
   "scripts": {
-    "build": "npm install && npm install --prefix client && npm run build --prefix client",
+    "build": "cd client && npm run build",
     "start": "npm start --prefix server",
     "dev:server": "npm run dev --prefix server",
     "dev:client": "npm run dev --prefix client",
