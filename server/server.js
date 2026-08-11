@@ -154,6 +154,19 @@ function ensureSupabase(res) {
   return false;
 }
 
+function getFallbackData(type) {
+  switch (type) {
+    case 'categories':
+      return (fallbackPortfolioData.categories || []).map(normalizeCategoryRow);
+    case 'projects':
+      return (fallbackPortfolioData.projects || []).map(normalizeProjectRow);
+    case 'awards':
+      return (fallbackPortfolioData.awards || []).map(normalizeAwardRow);
+    default:
+      return [];
+  }
+}
+
 async function removeStoredMedia({ url, publicId, resourceType }) {
   if (publicId) {
     try {
@@ -181,7 +194,7 @@ async function removeStoredMedia({ url, publicId, resourceType }) {
 app.get('/api/categories', async (req, res) => {
   try {
     if (!supabase) {
-      return res.json((fallbackPortfolioData.categories || []).map(normalizeCategoryRow));
+      return res.json(getFallbackData('categories'));
     }
 
     const { data, error } = await supabase
@@ -189,10 +202,15 @@ app.get('/api/categories', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: true });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching categories:', error);
+      return res.json(getFallbackData('categories'));
+    }
+
     res.json((data || []).map(normalizeCategoryRow));
   } catch (err) {
-    res.status(500).json({ error: err.message || 'Failed to fetch categories' });
+    console.error('Error fetching categories:', err);
+    res.json(getFallbackData('categories'));
   }
 });
 
@@ -368,7 +386,7 @@ app.delete('/api/categories/:id', async (req, res) => {
 app.get('/api/projects', async (req, res) => {
   try {
     if (!supabase) {
-      return res.json((fallbackPortfolioData.projects || []).map(normalizeProjectRow));
+      return res.json(getFallbackData('projects'));
     }
 
     const { data, error } = await supabase
@@ -376,11 +394,15 @@ app.get('/api/projects', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching projects:', error);
+      return res.json(getFallbackData('projects'));
+    }
+
     res.json((data || []).map(normalizeProjectRow));
   } catch (err) {
     console.error('Error fetching projects:', err);
-    res.status(500).json({ error: err.message });
+    res.json(getFallbackData('projects'));
   }
 });
 
@@ -579,7 +601,7 @@ app.delete('/api/projects/:id', async (req, res) => {
 app.get('/api/awards', async (req, res) => {
   try {
     if (!supabase) {
-      return res.json((fallbackPortfolioData.awards || []).map(normalizeAwardRow));
+      return res.json(getFallbackData('awards'));
     }
 
     const { data, error } = await supabase
@@ -587,11 +609,15 @@ app.get('/api/awards', async (req, res) => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching awards:', error);
+      return res.json(getFallbackData('awards'));
+    }
+
     res.json((data || []).map(normalizeAwardRow));
   } catch (err) {
     console.error('Error fetching awards:', err);
-    res.status(500).json({ error: err.message });
+    res.json(getFallbackData('awards'));
   }
 });
 
