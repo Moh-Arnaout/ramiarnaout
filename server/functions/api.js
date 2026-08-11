@@ -31,16 +31,15 @@ try {
 }
 
 function jsonResponse(statusCode, payload) {
-  return {
-    statusCode,
+  return new Response(JSON.stringify(payload), {
+    status: statusCode,
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
-    },
-    body: JSON.stringify(payload)
-  };
+    }
+  });
 }
 
 export async function handler(event = {}) {
