@@ -1,18 +1,33 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+function resolveDataFile() {
+  const cwd = process.cwd();
+  const candidates = [
+    path.resolve(cwd, 'server', 'data', 'projects.json'),
+    path.resolve(cwd, 'data', 'projects.json'),
+    path.resolve(cwd, '..', 'server', 'data', 'projects.json'),
+    path.resolve(cwd, '..', 'data', 'projects.json'),
+    path.resolve('/var/task', 'server', 'data', 'projects.json'),
+    path.resolve('/var/task', 'data', 'projects.json')
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
+  }
+
+  return path.resolve(cwd, 'server', 'data', 'projects.json');
+}
 
 let fallbackData = { categories: [], projects: [], awards: [] };
 
 try {
-  fallbackData = JSON.parse(
-    readFileSync(path.join(__dirname, '..', 'data', 'projects.json'), 'utf8')
-  );
-} catch (err) {
-  console.warn('Fallback data unavailable:', err.message);
+  const dataFile = resolveDataFile();
+  fallbackData = JSON.parse(readFileSync(dataFile, 'utf8'));
+} catch (error) {
+  console.warn('Fallback data unavailable:', error.message);
 }
 
 function jsonResponse(statusCode, payload) {
@@ -22,14 +37,15 @@ function jsonResponse(statusCode, payload) {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type',
-      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(payload)
   };
 }
 
 export async function handler(event = {}) {
-  const pathname = (event.path || '/').replace(/\/+$/, '') || '/';
+  const rawPath = event.path || event.rawPath || '/';
+  const pathname = rawPath.replace(/\/+$/, '') || '/';
 
   if (event.httpMethod === 'OPTIONS') {
     return jsonResponse(200, { ok: true });
