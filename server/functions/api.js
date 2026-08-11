@@ -43,26 +43,30 @@ function jsonResponse(statusCode, payload) {
 }
 
 export async function handler(event = {}) {
-  const rawPath = event.path || event.rawPath || '/';
+  const rawPath = event.path || event.rawPath || event.url || '/';
   const pathname = rawPath.replace(/\/+$/, '') || '/';
+  const normalizedPath = pathname.startsWith('/.netlify/functions/api')
+    ? pathname.replace('/.netlify/functions/api', '') || '/'
+    : pathname;
+  const routePath = normalizedPath.startsWith('/api') ? normalizedPath : `/api${normalizedPath}`;
 
   if (event.httpMethod === 'OPTIONS') {
     return jsonResponse(200, { ok: true });
   }
 
   if (event.httpMethod === 'GET') {
-    if (pathname === '/api/categories') {
+    if (routePath === '/api/categories') {
       return jsonResponse(200, fallbackData.categories || []);
     }
-    if (pathname === '/api/projects') {
+    if (routePath === '/api/projects') {
       return jsonResponse(200, fallbackData.projects || []);
     }
-    if (pathname === '/api/awards') {
+    if (routePath === '/api/awards') {
       return jsonResponse(200, fallbackData.awards || []);
     }
   }
 
-  return jsonResponse(404, { error: 'Not found' });
+  return jsonResponse(404, { error: 'Not found', path: routePath });
 }
 
 export default handler;
