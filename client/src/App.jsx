@@ -33,6 +33,12 @@ const Linkedin = ({ size = 24, className }) => (
 
 const BACKEND_URL = '';
 
+function normalizeArrayPayload(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (payload && Array.isArray(payload.data)) return payload.data;
+  return [];
+}
+
 export default function App() {
   const [currentView, setCurrentView] = useState('home'); // 'home' or 'admin'
   const [adminUnlocked, setAdminUnlocked] = useState(false);
@@ -42,6 +48,7 @@ export default function App() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [selectedProject, setSelectedProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Fetch initial data
   useEffect(() => {
@@ -50,20 +57,37 @@ export default function App() {
 
   const fetchData = async () => {
     setIsLoading(true);
+    setErrorMessage('');
     try {
-      const [catsRes, projsRes, awardsRes] = await Promise.all([
+      const [catsResult, projsResult, awardsResult] = await Promise.allSettled([
         fetch(`${BACKEND_URL}/api/categories`),
         fetch(`${BACKEND_URL}/api/projects`),
         fetch(`${BACKEND_URL}/api/awards`)
       ]);
-      const cats = await catsRes.json();
-      const projs = await projsRes.json();
-      const aws = await awardsRes.json();
+
+      const cats = catsResult.status === 'fulfilled' && catsResult.value?.ok
+        ? normalizeArrayPayload(await catsResult.value.json().catch(() => []))
+        : [];
+      const projs = projsResult.status === 'fulfilled' && projsResult.value?.ok
+        ? normalizeArrayPayload(await projsResult.value.json().catch(() => []))
+        : [];
+      const aws = awardsResult.status === 'fulfilled' && awardsResult.value?.ok
+        ? normalizeArrayPayload(await awardsResult.value.json().catch(() => []))
+        : [];
+
       setCategories(cats);
       setProjects(projs);
       setAwards(aws);
+
+      if (!cats.length && !projs.length && !aws.length) {
+        setErrorMessage('The portfolio content is temporarily unavailable. Please try again shortly.');
+      }
     } catch (err) {
       console.error('Failed to load portfolio data:', err);
+      setErrorMessage('Unable to load portfolio data right now.');
+      setCategories([]);
+      setProjects([]);
+      setAwards([]);
     } finally {
       setIsLoading(false);
     }
@@ -87,7 +111,7 @@ export default function App() {
       });
       if (res.ok) {
         const newCat = await res.json();
-        setCategories(prev => [...prev, newCat]);
+        setCategories(prev => [...(Array.isArray(prev) ? prev : []), newCat]);
       } else {
         const err = await res.json();
         alert(`Error: ${err.error}`);
@@ -105,7 +129,7 @@ export default function App() {
       });
       if (res.ok) {
         const updatedCat = await res.json();
-        setCategories(prev => prev.map(c => c.id === catId ? updatedCat : c));
+        setCategories(prev => (prev?.map ? prev.map(c => c.id === catId ? updatedCat : c) : []));
         alert('Category updated successfully!');
       } else {
         const err = await res.json();
@@ -122,7 +146,7 @@ export default function App() {
         method: 'DELETE'
       });
       if (res.ok) {
-        setCategories(prev => prev.filter(c => c.id !== catId));
+        setCategories(prev => (Array.isArray(prev) ? prev.filter(c => c.id !== catId) : []));
         // Refresh projects since their category link might have updated
         fetchData();
       } else {
@@ -142,7 +166,7 @@ export default function App() {
       });
       if (res.ok) {
         const newProj = await res.json();
-        setProjects(prev => [...prev, newProj]);
+        setProjects(prev => [...(Array.isArray(prev) ? prev : []), newProj]);
         alert('Project published successfully!');
       } else {
         const err = await res.json();
@@ -161,7 +185,7 @@ export default function App() {
       });
       if (res.ok) {
         const updated = await res.json();
-        setProjects(prev => prev.map(p => p.id === projId ? updated : p));
+        setProjects(prev => (prev?.map ? prev.map(p => p.id === projId ? updated : p) : []));
         alert('Project updated successfully!');
       } else {
         const err = await res.json();
@@ -178,7 +202,7 @@ export default function App() {
         method: 'DELETE'
       });
       if (res.ok) {
-        setProjects(prev => prev.filter(p => p.id !== projId));
+        setProjects(prev => (Array.isArray(prev) ? prev.filter(p => p.id !== projId) : []));
       } else {
         alert('Failed to delete project');
       }
@@ -196,7 +220,7 @@ export default function App() {
       });
       if (res.ok) {
         const newAward = await res.json();
-        setAwards(prev => [...prev, newAward]);
+        setAwards(prev => [...(Array.isArray(prev) ? prev : []), newAward]);
         alert('Award added successfully!');
       } else {
         const err = await res.json();
@@ -215,7 +239,7 @@ export default function App() {
       });
       if (res.ok) {
         const updated = await res.json();
-        setAwards(prev => prev.map(a => a.id === awardId ? updated : a));
+        setAwards(prev => (prev?.map ? prev.map(a => a.id === awardId ? updated : a) : []));
         alert('Award updated successfully!');
       } else {
         const err = await res.json();
@@ -232,7 +256,7 @@ export default function App() {
         method: 'DELETE'
       });
       if (res.ok) {
-        setAwards(prev => prev.filter(a => a.id !== awardId));
+        setAwards(prev => (Array.isArray(prev) ? prev.filter(a => a.id !== awardId) : []));
       } else {
         alert('Failed to delete award');
       }
@@ -249,6 +273,18 @@ export default function App() {
         onReservedAccess={handleReservedAccess}
         backendUrl={BACKEND_URL}
       />
+
+      {errorMessage && (
+        <div style={{ margin: '1rem auto 0', maxWidth: '960px', padding: '0.9rem 1rem', borderRadius: '8px', background: 'rgba(255, 92, 92, 0.12)', color: 'var(--text-primary)', border: '1px solid rgba(255, 92, 92, 0.3)' }}>
+          {errorMessage}
+        </div>
+      )}
+
+      {isLoading && currentView === 'home' && (
+        <div style={{ minHeight: '40vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+          Loading portfolio...
+        </div>
+      )}
 
       {currentView === 'home' && (
         <div className="page-transition" key="home">

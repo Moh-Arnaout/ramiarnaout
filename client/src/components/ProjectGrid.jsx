@@ -10,6 +10,8 @@ export default function ProjectGrid({
   backendUrl 
 }) {
   const gridRef = useRef(null);
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeProjects = Array.isArray(projects) ? projects : [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -32,8 +34,8 @@ export default function ProjectGrid({
   }, [projects, activeCategory]);
 
   const filteredProjects = activeCategory === 'all' 
-    ? projects 
-    : projects.filter(p => p.category === activeCategory);
+    ? safeProjects 
+    : safeProjects.filter(p => p.category === activeCategory);
 
   return (
     <section id="projects" className="container" ref={gridRef} style={{ paddingTop: '4rem' }}>
@@ -50,7 +52,7 @@ export default function ProjectGrid({
         >
           All Projects
         </button>
-        {categories.map((cat) => (
+        {safeCategories?.map((cat) => (
           <button 
             key={cat.id} 
             className={`filter-btn ${activeCategory === cat.id ? 'active' : ''}`}
@@ -69,7 +71,7 @@ export default function ProjectGrid({
       ) : (
         <div className="projects-grid">
           {filteredProjects.map((proj, idx) => {
-            const catName = categories.find(c => c.id === proj.category)?.name || 'General';
+            const catName = safeCategories.find(c => c.id === proj.category)?.name || 'General';
             
             return (
               <div 
@@ -80,7 +82,7 @@ export default function ProjectGrid({
               >
                 <div className="project-image-wrap">
                   {(() => {
-                    const mainImg = proj.mainImage.startsWith('http') || proj.mainImage.startsWith('/uploads') ? `${backendUrl}${proj.mainImage}` : proj.mainImage;
+                    const mainImg = proj.mainImage?.startsWith('http') || proj.mainImage?.startsWith('/uploads') ? `${backendUrl}${proj.mainImage}` : proj.mainImage;
                     const isVid = proj.mainImageResourceType === 'video' || mainImg.includes('/video/upload/') || /\.(mp4|mov|webm|ogv)($|\?)/i.test(mainImg);
                     return isVid ? (
                       <video
@@ -97,7 +99,7 @@ export default function ProjectGrid({
                         src={mainImg} 
                         alt={proj.title} 
                         className="project-image"
-                        style={{ objectPosition: (proj.imagePositions && proj.imagePositions[0]) || '50% 50%' }}
+                        style={{ objectPosition: (Array.isArray(proj.imagePositions) && proj.imagePositions[0]) || '50% 50%' }}
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = `${backendUrl}/uploads/logo.png`;

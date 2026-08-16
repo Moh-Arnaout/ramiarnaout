@@ -14,8 +14,9 @@ export default function ProjectDetails({ project, categories, onClose, backendUr
 
   if (!project) return null;
 
-  const images = project.images && project.images.length > 0 ? project.images : [project.mainImage];
-  const catName = categories.find(c => c.id === project.category)?.name || 'General';
+  const images = Array.isArray(project.images) && project.images.length > 0 ? project.images : [project.mainImage];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const catName = safeCategories.find(c => c.id === project.category)?.name || 'General';
 
   const isVideo = (idx) => {
     if (project.imageResourceTypes && project.imageResourceTypes[idx]) {
@@ -36,10 +37,10 @@ export default function ProjectDetails({ project, categories, onClose, backendUr
   };
 
   const getFullImageUrl = (path) => {
-    if (path.startsWith('http') || path.startsWith('/uploads')) {
+    if (path?.startsWith('http') || path?.startsWith('/uploads')) {
       return `${backendUrl}${path}`;
     }
-    return path;
+    return path || `${backendUrl}/uploads/logo.png`;
   };
 
   return (

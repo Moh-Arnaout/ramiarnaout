@@ -2,6 +2,8 @@ import React, { useEffect, useRef } from 'react';
 
 export default function CategorySection({ categories, projects, onCategorySelect, activeCategory, backendUrl }) {
   const sectionRef = useRef(null);
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeProjects = Array.isArray(projects) ? projects : [];
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -25,7 +27,7 @@ export default function CategorySection({ categories, projects, onCategorySelect
 
   // Helper to count projects per category
   const getProjectCount = (categoryId) => {
-    return projects.filter(p => p.category === categoryId).length;
+    return safeProjects.filter(p => p.category === categoryId).length;
   };
 
   return (
@@ -36,7 +38,7 @@ export default function CategorySection({ categories, projects, onCategorySelect
       </div>
 
       <div className="categories-container">
-        {categories.map((cat, idx) => {
+        {safeCategories?.map((cat, idx) => {
           const count = getProjectCount(cat.id);
           const isSelected = activeCategory === cat.id;
           
@@ -57,7 +59,7 @@ export default function CategorySection({ categories, projects, onCategorySelect
             >
               <div className="category-arch">
                 <img 
-                  src={cat.image.startsWith('http') || cat.image.startsWith('/uploads') ? `${backendUrl}${cat.image}` : cat.image} 
+                  src={cat.image?.startsWith('http') || cat.image?.startsWith('/uploads') ? `${backendUrl}${cat.image}` : cat.image} 
                   alt={cat.name} 
                   className="category-img"
                   style={{ objectPosition: cat.imagePosition || '50% 50%' }}

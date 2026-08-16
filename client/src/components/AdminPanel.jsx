@@ -49,6 +49,10 @@ export default function AdminPanel({
   const [isAuthenticated, setIsAuthenticated] = useState(Boolean(initialAuthenticated));
   const [authError, setAuthError] = useState('');
 
+  const safeProjects = Array.isArray(projects) ? projects : [];
+  const safeCategories = Array.isArray(categories) ? categories : [];
+  const safeAwards = Array.isArray(awards) ? awards : [];
+
   const [activeTab, setActiveTab] = useState('projects'); // 'projects' or 'categories'
 
   // Project Form State
@@ -397,7 +401,7 @@ export default function AdminPanel({
                     required
                   >
                     <option value="" disabled>Select Category</option>
-                    {categories.map(c => (
+                    {safeCategories.map(c => (
                       <option key={c.id} value={c.id}>{c.name}</option>
                     ))}
                   </select>
@@ -550,10 +554,10 @@ export default function AdminPanel({
 
           {/* Projects List */}
           <div style={{ marginTop: '4rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Projects ({projects.length})</h3>
+            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Projects ({safeProjects.length})</h3>
             <div className="admin-items-list">
-              {projects.map(proj => {
-                const catName = categories.find(c => c.id === proj.category)?.name || 'General';
+              {safeProjects.map(proj => {
+                const catName = safeCategories.find(c => c.id === proj.category)?.name || 'General';
                 return (
                   <div key={proj.id} className="admin-list-item">
                     <div className="admin-item-left">
@@ -673,9 +677,9 @@ export default function AdminPanel({
 
           {/* Categories List */}
           <div style={{ marginTop: '4rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Categories ({categories.length})</h3>
+            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Categories ({safeCategories.length})</h3>
             <div className="admin-items-list">
-              {categories.map(cat => (
+              {safeCategories.map(cat => (
                 <div key={cat.id} className="admin-list-item">
                   <div className="admin-item-left">
                     <img
@@ -828,9 +832,9 @@ export default function AdminPanel({
 
           {/* Awards List */}
           <div style={{ marginTop: '4rem' }}>
-            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Awards ({awards.length})</h3>
+            <h3 style={{ marginBottom: '1.5rem', fontFamily: 'var(--font-serif)', fontSize: '1.4rem' }}>Current Awards ({safeAwards.length})</h3>
             <div className="admin-items-list">
-              {awards.map(aw => (
+              {safeAwards.map(aw => (
                 <div key={aw.id} className="admin-list-item">
                   <div className="admin-item-left">
                     <img

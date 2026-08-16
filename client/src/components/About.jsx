@@ -317,7 +317,7 @@ export default function About({ onViewChange, awards = [], backendUrl = '' }) {
   const [showTopBtn, setShowTopBtn] = useState(false);
 
   // Only show awards managed from the Admin Panel
-  const displayAwards = awards || [];
+  const displayAwards = Array.isArray(awards) ? awards : [];
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
