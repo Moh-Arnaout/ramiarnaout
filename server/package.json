@@ -1,6 +1,7 @@
 {
   "name": "ramiarnaout-server",
   "version": "1.0.0",
+  "type": "module",
   "description": "Backend server for Rami Arnaout Architects portfolio site",
   "main": "server.js",
   "scripts": {
@@ -14,7 +15,8 @@
     "dotenv": "^17.4.2",
     "@supabase/supabase-js": "^2.110.8",
     "multer-storage-cloudinary": "^4.0.0",
-    "multer": "^1.4.5-lts.1"
+    "multer": "^1.4.5-lts.1",
+    "serverless-http": "^4.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.0"
