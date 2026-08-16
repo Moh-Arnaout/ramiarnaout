@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Lock, Plus, Edit, Trash2, Upload, FileText, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 import { formatImageUrl } from '../utils/imageUtils';
+import { uploadFilesToCloudinary, uploadToCloudinary } from '../utils/cloudinaryUpload';
 
 function ImagePositionControls({ value, onChange }) {
   const parts = (value || '50% 50%').split(' ');
@@ -225,13 +226,7 @@ export default function AdminPanel({
     }
   };
 
-  const fileToBase64 = (file) => new Promise((resolve, reject) => {
-    if (!file) resolve(null);
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (err) => reject(err);
-    reader.readAsDataURL(file);
-  });
+  const [isUploading, setIsUploading] = useState(false);
 
   // Submit handlers
   const handleProjectSubmit = async (e) => {
@@ -241,38 +236,46 @@ export default function AdminPanel({
       return;
     }
 
-    const newBase64Files = await Promise.all(projectFiles.map(fileToBase64));
-    const validNewFiles = newBase64Files.filter(Boolean);
+    setIsUploading(true);
+    try {
+      // Upload new files directly to Cloudinary from the browser
+      const uploaded = await uploadFilesToCloudinary(projectFiles, backendUrl);
 
-    const allImages = [...existingProjectImages, ...validNewFiles];
-    const allPublicIds = [...existingProjectPublicIds, ...validNewFiles.map(() => '')];
-    const allTypes = [
-      ...existingProjectResourceTypes,
-      ...validNewFiles.map(f => (typeof f === 'string' && f.startsWith('data:video')) ? 'video' : 'image')
-    ];
+      const newUrls = uploaded.map(u => u.url);
+      const newPublicIds = uploaded.map(u => u.publicId);
+      const newTypes = uploaded.map(u => u.resourceType);
 
-    const payload = {
-      title: projectTitle,
-      category: projectCategory,
-      date: projectDate,
-      location: projectLocation,
-      description: projectDescription,
-      images: allImages,
-      imagePublicIds: allPublicIds,
-      imageResourceTypes: allTypes,
-      mainImage: allImages[0] || '/uploads/logo.png',
-      mainImagePublicId: allPublicIds[0] || '',
-      mainImageResourceType: allTypes[0] || 'image',
-      imagePositions: projectImagePositions
-    };
+      const allImages = [...existingProjectImages, ...newUrls];
+      const allPublicIds = [...existingProjectPublicIds, ...newPublicIds];
+      const allTypes = [...existingProjectResourceTypes, ...newTypes];
 
-    if (editingProject) {
-      await onUpdateProject(editingProject.id, payload);
-    } else {
-      await onAddProject(payload);
+      const payload = {
+        title: projectTitle,
+        category: projectCategory,
+        date: projectDate,
+        location: projectLocation,
+        description: projectDescription,
+        images: allImages,
+        imagePublicIds: allPublicIds,
+        imageResourceTypes: allTypes,
+        mainImage: allImages[0] || '/uploads/logo.png',
+        mainImagePublicId: allPublicIds[0] || '',
+        mainImageResourceType: allTypes[0] || 'image',
+        imagePositions: projectImagePositions
+      };
+
+      if (editingProject) {
+        await onUpdateProject(editingProject.id, payload);
+      } else {
+        await onAddProject(payload);
+      }
+
+      clearProjectForm();
+    } catch (err) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
     }
-
-    clearProjectForm();
   };
 
   const handleCategorySubmit = async (e) => {
@@ -282,20 +285,38 @@ export default function AdminPanel({
       return;
     }
 
-    const base64Image = categoryFile ? await fileToBase64(categoryFile) : categoryFilePreview;
+    setIsUploading(true);
+    try {
+      let imageUrl = categoryFilePreview || '/uploads/logo.png';
+      let imagePublicId = editingCategory?.imagePublicId || '';
+      let imageResourceType = 'image';
 
-    const payload = {
-      name: categoryName,
-      image: base64Image || '/uploads/logo.png',
-      imagePosition: categoryImagePosition
-    };
+      if (categoryFile) {
+        const uploaded = await uploadToCloudinary(categoryFile, backendUrl);
+        imageUrl = uploaded.url;
+        imagePublicId = uploaded.publicId;
+        imageResourceType = uploaded.resourceType;
+      }
 
-    if (editingCategory) {
-      await onUpdateCategory(editingCategory.id, payload);
-    } else {
-      await onAddCategory(payload);
+      const payload = {
+        name: categoryName,
+        image: imageUrl,
+        imagePublicId,
+        imageResourceType,
+        imagePosition: categoryImagePosition
+      };
+
+      if (editingCategory) {
+        await onUpdateCategory(editingCategory.id, payload);
+      } else {
+        await onAddCategory(payload);
+      }
+      clearCategoryForm();
+    } catch (err) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
     }
-    clearCategoryForm();
   };
 
   const handleAwardSubmit = async (e) => {
@@ -305,24 +326,42 @@ export default function AdminPanel({
       return;
     }
 
-    const base64Image = awardFile ? await fileToBase64(awardFile) : existingAwardImage;
+    setIsUploading(true);
+    try {
+      let imageUrl = existingAwardImage || '';
+      let imagePublicId = editingAward?.imagePublicId || '';
+      let imageResourceType = 'image';
 
-    const payload = {
-      project: awardTitle,
-      year: awardYear,
-      location: awardLocation,
-      award: awardPlace,
-      office: awardOffice,
-      image: base64Image || '',
-      imagePosition: awardImagePosition
-    };
+      if (awardFile) {
+        const uploaded = await uploadToCloudinary(awardFile, backendUrl);
+        imageUrl = uploaded.url;
+        imagePublicId = uploaded.publicId;
+        imageResourceType = uploaded.resourceType;
+      }
 
-    if (editingAward) {
-      await onUpdateAward(editingAward.id, payload);
-    } else {
-      await onAddAward(payload);
+      const payload = {
+        project: awardTitle,
+        year: awardYear,
+        location: awardLocation,
+        award: awardPlace,
+        office: awardOffice,
+        image: imageUrl,
+        imagePublicId,
+        imageResourceType,
+        imagePosition: awardImagePosition
+      };
+
+      if (editingAward) {
+        await onUpdateAward(editingAward.id, payload);
+      } else {
+        await onAddAward(payload);
+      }
+      clearAwardForm();
+    } catch (err) {
+      alert(`Upload failed: ${err.message}`);
+    } finally {
+      setIsUploading(false);
     }
-    clearAwardForm();
   };
 
   if (!isAuthenticated) {
@@ -566,8 +605,8 @@ export default function AdminPanel({
                     Cancel Edit
                   </button>
                 )}
-                <button type="submit" className="btn-primary">
-                  {editingProject ? 'Save Changes' : 'Publish Project'}
+                <button type="submit" className="btn-primary" disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : (editingProject ? 'Save Changes' : 'Publish Project')}
                 </button>
               </div>
             </form>
@@ -689,8 +728,8 @@ export default function AdminPanel({
                     Cancel Edit
                   </button>
                 )}
-                <button type="submit" className="btn-primary">
-                  {editingCategory ? 'Save Changes' : 'Create Category'}
+                <button type="submit" className="btn-primary" disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : (editingCategory ? 'Save Changes' : 'Create Category')}
                 </button>
               </div>
             </form>
@@ -844,8 +883,8 @@ export default function AdminPanel({
                     Cancel Edit
                   </button>
                 )}
-                <button type="submit" className="btn-primary">
-                  {editingAward ? 'Save Changes' : 'Add Award'}
+                <button type="submit" className="btn-primary" disabled={isUploading}>
+                  {isUploading ? 'Uploading...' : (editingAward ? 'Save Changes' : 'Add Award')}
                 </button>
               </div>
             </form>

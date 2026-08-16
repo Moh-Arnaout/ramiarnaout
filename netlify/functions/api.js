@@ -1,6 +1,14 @@
 import crypto from 'crypto';
+import { v2 as cloudinary } from 'cloudinary';
 import fallbackPortfolioData from '../../server/data/projectsData.js';
 import supabase from '../../server/config/supabase.js';
+
+// Configure cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 const headers = {
   'Content-Type': 'application/json',
@@ -128,6 +136,37 @@ export const handler = async (event = {}) => {
   }
 
   try {
+    // ----------------------------------------------------
+    // CLOUDINARY SIGNED UPLOAD
+    // ----------------------------------------------------
+    if (path === '/cloudinary-signature' && method === 'POST') {
+      const apiSecret = process.env.CLOUDINARY_API_SECRET;
+      const apiKey = process.env.CLOUDINARY_API_KEY;
+      const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+
+      if (!apiSecret || !apiKey || !cloudName) {
+        return { statusCode: 503, headers, body: JSON.stringify({ error: 'Cloudinary not configured' }) };
+      }
+
+      const timestamp = Math.round(Date.now() / 1000);
+      const folder = 'rami_arnaout_portfolio';
+      const paramsToSign = { folder, timestamp };
+      const sortedParams = Object.keys(paramsToSign)
+        .sort()
+        .map(k => `${k}=${paramsToSign[k]}`)
+        .join('&');
+      const signature = crypto
+        .createHash('sha256')
+        .update(sortedParams + apiSecret)
+        .digest('hex');
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ signature, timestamp, apiKey, cloudName, folder })
+      };
+    }
+
     // ----------------------------------------------------
     // CATEGORIES
     // ----------------------------------------------------
