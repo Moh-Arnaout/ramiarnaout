@@ -103,11 +103,12 @@ export default function App() {
   };
 
   // Category Actions
-  const handleAddCategory = async (formData) => {
+  const handleAddCategory = async (payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/categories`, {
         method: 'POST',
-        body: formData // Multipar/form-data
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const newCat = await res.json();
@@ -121,11 +122,12 @@ export default function App() {
     }
   };
 
-  const handleUpdateCategory = async (catId, formData) => {
+  const handleUpdateCategory = async (catId, payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/categories/${catId}`, {
         method: 'PUT',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const updatedCat = await res.json();
@@ -158,11 +160,12 @@ export default function App() {
   };
 
   // Project Actions
-  const handleAddProject = async (formData) => {
+  const handleAddProject = async (payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/projects`, {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const newProj = await res.json();
@@ -177,11 +180,12 @@ export default function App() {
     }
   };
 
-  const handleUpdateProject = async (projId, formData) => {
+  const handleUpdateProject = async (projId, payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/projects/${projId}`, {
         method: 'PUT',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const updated = await res.json();
@@ -212,11 +216,12 @@ export default function App() {
   };
 
   // Award Actions
-  const handleAddAward = async (formData) => {
+  const handleAddAward = async (payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/awards`, {
         method: 'POST',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const newAward = await res.json();
@@ -231,11 +236,12 @@ export default function App() {
     }
   };
 
-  const handleUpdateAward = async (awardId, formData) => {
+  const handleUpdateAward = async (awardId, payload) => {
     try {
       const res = await fetch(`${BACKEND_URL}/api/awards/${awardId}`, {
         method: 'PUT',
-        body: formData
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
       });
       if (res.ok) {
         const updated = await res.json();

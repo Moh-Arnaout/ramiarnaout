@@ -225,6 +225,14 @@ export default function AdminPanel({
     }
   };
 
+  const fileToBase64 = (file) => new Promise((resolve, reject) => {
+    if (!file) resolve(null);
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (err) => reject(err);
+    reader.readAsDataURL(file);
+  });
+
   // Submit handlers
   const handleProjectSubmit = async (e) => {
     e.preventDefault();
@@ -233,25 +241,35 @@ export default function AdminPanel({
       return;
     }
 
-    const formData = new FormData();
-    formData.append('title', projectTitle);
-    formData.append('category', projectCategory);
-    formData.append('date', projectDate);
-    formData.append('location', projectLocation);
-    formData.append('description', projectDescription);
-    formData.append('imagePositions', JSON.stringify(projectImagePositions));
+    const newBase64Files = await Promise.all(projectFiles.map(fileToBase64));
+    const validNewFiles = newBase64Files.filter(Boolean);
 
-    projectFiles.forEach(file => {
-      formData.append('images', file);
-    });
+    const allImages = [...existingProjectImages, ...validNewFiles];
+    const allPublicIds = [...existingProjectPublicIds, ...validNewFiles.map(() => '')];
+    const allTypes = [
+      ...existingProjectResourceTypes,
+      ...validNewFiles.map(f => (typeof f === 'string' && f.startsWith('data:video')) ? 'video' : 'image')
+    ];
+
+    const payload = {
+      title: projectTitle,
+      category: projectCategory,
+      date: projectDate,
+      location: projectLocation,
+      description: projectDescription,
+      images: allImages,
+      imagePublicIds: allPublicIds,
+      imageResourceTypes: allTypes,
+      mainImage: allImages[0] || '/uploads/logo.png',
+      mainImagePublicId: allPublicIds[0] || '',
+      mainImageResourceType: allTypes[0] || 'image',
+      imagePositions: projectImagePositions
+    };
 
     if (editingProject) {
-      formData.append('existingImages', JSON.stringify(existingProjectImages));
-      formData.append('existingImagePublicIds', JSON.stringify(existingProjectPublicIds));
-      formData.append('existingImageResourceTypes', JSON.stringify(existingProjectResourceTypes));
-      await onUpdateProject(editingProject.id, formData);
+      await onUpdateProject(editingProject.id, payload);
     } else {
-      await onAddProject(formData);
+      await onAddProject(payload);
     }
 
     clearProjectForm();
@@ -264,17 +282,18 @@ export default function AdminPanel({
       return;
     }
 
-    const formData = new FormData();
-    formData.append('name', categoryName);
-    formData.append('imagePosition', categoryImagePosition);
-    if (categoryFile) {
-      formData.append('image', categoryFile);
-    }
+    const base64Image = categoryFile ? await fileToBase64(categoryFile) : categoryFilePreview;
+
+    const payload = {
+      name: categoryName,
+      image: base64Image || '/uploads/logo.png',
+      imagePosition: categoryImagePosition
+    };
 
     if (editingCategory) {
-      await onUpdateCategory(editingCategory.id, formData);
+      await onUpdateCategory(editingCategory.id, payload);
     } else {
-      await onAddCategory(formData);
+      await onAddCategory(payload);
     }
     clearCategoryForm();
   };
@@ -286,21 +305,22 @@ export default function AdminPanel({
       return;
     }
 
-    const formData = new FormData();
-    formData.append('title', awardTitle);
-    formData.append('year', awardYear);
-    formData.append('location', awardLocation);
-    formData.append('awardPlace', awardPlace);
-    formData.append('office', awardOffice);
-    formData.append('imagePosition', awardImagePosition);
-    if (awardFile) {
-      formData.append('image', awardFile);
-    }
+    const base64Image = awardFile ? await fileToBase64(awardFile) : existingAwardImage;
+
+    const payload = {
+      project: awardTitle,
+      year: awardYear,
+      location: awardLocation,
+      award: awardPlace,
+      office: awardOffice,
+      image: base64Image || '',
+      imagePosition: awardImagePosition
+    };
 
     if (editingAward) {
-      await onUpdateAward(editingAward.id, formData);
+      await onUpdateAward(editingAward.id, payload);
     } else {
-      await onAddAward(formData);
+      await onAddAward(payload);
     }
     clearAwardForm();
   };

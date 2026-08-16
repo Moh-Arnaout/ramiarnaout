@@ -104,19 +104,22 @@ function serializeProjectRow({
   imagePublicIds, imageResourceTypes, mainImage, mainImagePublicId,
   mainImageResourceType, imagePositions
 }) {
+  const safeTitle = (title && String(title).trim()) ? String(title).trim() : 'Untitled Project';
+  const safeCategory = (category && String(category).trim()) ? String(category).trim() : null;
+
   return {
     id,
-    title,
+    title: safeTitle,
     description: description || '',
-    category: (category && String(category).trim()) ? String(category).trim() : null,
+    category: safeCategory,
     date: date || '',
     location: location || '',
     images: images || [],
     image_public_ids: imagePublicIds || [],
     image_resource_types: imageResourceTypes || [],
-    main_image: mainImage || '/uploads/logo.png',
-    main_image_public_id: mainImagePublicId || '',
-    main_image_resource_type: mainImageResourceType || 'image',
+    main_image: mainImage || (Array.isArray(images) && images[0]) || '/uploads/logo.png',
+    main_image_public_id: mainImagePublicId || (Array.isArray(imagePublicIds) && imagePublicIds[0]) || '',
+    main_image_resource_type: mainImageResourceType || (Array.isArray(imageResourceTypes) && imageResourceTypes[0]) || 'image',
     image_positions: imagePositions || []
   };
 }
