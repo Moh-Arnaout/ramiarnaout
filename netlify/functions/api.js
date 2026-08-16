@@ -120,7 +120,8 @@ export const handler = async (event = {}) => {
   let body = {};
   if (event.body) {
     try {
-      body = JSON.parse(event.body);
+      const rawBody = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body;
+      body = JSON.parse(rawBody);
     } catch (e) {
       body = {};
     }
@@ -153,9 +154,10 @@ export const handler = async (event = {}) => {
         const { name, imagePosition, image } = body;
         let id = name?.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `cat-${Date.now()}`;
         const newCat = serializeCategoryRow({ id, name, image, imagePosition });
-        const { data, error } = await supabase.from('categories').insert([newCat]).select().single();
+        const { data, error } = await supabase.from('categories').upsert([newCat]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 201, headers, body: JSON.stringify(normalizeCategoryRow(data)) };
+        const saved = (data && data.length) ? normalizeCategoryRow(data[0]) : normalizeCategoryRow(newCat);
+        return { statusCode: 201, headers, body: JSON.stringify(saved) };
       }
     }
 
@@ -167,9 +169,10 @@ export const handler = async (event = {}) => {
         }
         const { name, imagePosition, image } = body;
         const updated = serializeCategoryRow({ id, name, image, imagePosition });
-        const { data, error } = await supabase.from('categories').update(updated).eq('id', id).select().single();
+        const { data, error } = await supabase.from('categories').upsert([updated]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 200, headers, body: JSON.stringify(normalizeCategoryRow(data)) };
+        const saved = (data && data.length) ? normalizeCategoryRow(data[0]) : normalizeCategoryRow(updated);
+        return { statusCode: 200, headers, body: JSON.stringify(saved) };
       }
 
       if (method === 'DELETE') {
@@ -207,9 +210,10 @@ export const handler = async (event = {}) => {
         }
         const id = crypto.randomBytes(8).toString('hex');
         const newProj = serializeProjectRow({ ...body, id });
-        const { data, error } = await supabase.from('projects').insert([newProj]).select().single();
+        const { data, error } = await supabase.from('projects').upsert([newProj]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 201, headers, body: JSON.stringify(normalizeProjectRow(data)) };
+        const saved = (data && data.length) ? normalizeProjectRow(data[0]) : normalizeProjectRow(newProj);
+        return { statusCode: 201, headers, body: JSON.stringify(saved) };
       }
     }
 
@@ -220,9 +224,10 @@ export const handler = async (event = {}) => {
           return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
         }
         const updatedProj = serializeProjectRow({ ...body, id });
-        const { data, error } = await supabase.from('projects').update(updatedProj).eq('id', id).select().single();
+        const { data, error } = await supabase.from('projects').upsert([updatedProj]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 200, headers, body: JSON.stringify(normalizeProjectRow(data)) };
+        const saved = (data && data.length) ? normalizeProjectRow(data[0]) : normalizeProjectRow(updatedProj);
+        return { statusCode: 200, headers, body: JSON.stringify(saved) };
       }
 
       if (method === 'DELETE') {
@@ -260,9 +265,10 @@ export const handler = async (event = {}) => {
         }
         const id = crypto.randomBytes(8).toString('hex');
         const newAward = serializeAwardRow({ ...body, id });
-        const { data, error } = await supabase.from('awards').insert([newAward]).select().single();
+        const { data, error } = await supabase.from('awards').upsert([newAward]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 201, headers, body: JSON.stringify(normalizeAwardRow(data)) };
+        const saved = (data && data.length) ? normalizeAwardRow(data[0]) : normalizeAwardRow(newAward);
+        return { statusCode: 201, headers, body: JSON.stringify(saved) };
       }
     }
 
@@ -273,9 +279,10 @@ export const handler = async (event = {}) => {
           return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
         }
         const updatedAward = serializeAwardRow({ ...body, id });
-        const { data, error } = await supabase.from('awards').update(updatedAward).eq('id', id).select().single();
+        const { data, error } = await supabase.from('awards').upsert([updatedAward]).select();
         if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
-        return { statusCode: 200, headers, body: JSON.stringify(normalizeAwardRow(data)) };
+        const saved = (data && data.length) ? normalizeAwardRow(data[0]) : normalizeAwardRow(updatedAward);
+        return { statusCode: 200, headers, body: JSON.stringify(saved) };
       }
 
       if (method === 'DELETE') {
