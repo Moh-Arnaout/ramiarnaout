@@ -5,7 +5,7 @@ import path from 'path';
 import crypto from 'crypto';
 import { existsSync, unlink } from 'fs';
 import { v2 as cloudinary } from 'cloudinary';
-import fallbackPortfolioData from './data/projects.json' with { type: 'json' };
+import fallbackPortfolioData from './data/projectsData.js';
 
 // Import custom config modules
 import upload from './config/cloudinary.js';
