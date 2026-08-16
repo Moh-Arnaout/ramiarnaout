@@ -1,7 +1,7 @@
 [build]
   command = "npm install && npm --prefix server install && npm --prefix client install && npm --prefix client run build"
   publish = "client/dist"
-  functions = "server/functions"
+  functions = "netlify/functions"
 
 [build.processing]
   skip_processing = true
