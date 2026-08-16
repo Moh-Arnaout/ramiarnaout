@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { formatImageUrl } from '../utils/imageUtils';
 import ramiPhoto from '../assets/rami_arnaout2.jpeg';
 import {
   Mail, Phone, MapPin, Award, BookOpen, Briefcase,
@@ -274,7 +275,7 @@ function AwardCard({ item, backendUrl }) {
   }
 
   // Construct absolute image source
-  const imageSrc = image ? (image.startsWith('http') || image.startsWith('/uploads') ? `${backendUrl}${image}` : image) : null;
+  const imageSrc = image ? formatImageUrl(image, backendUrl) : null;
 
   return (
     <div className={`about-award-card ${tierClass}`}>

@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { Eye, MapPin } from 'lucide-react';
+import { formatImageUrl } from '../utils/imageUtils';
 
 export default function ProjectGrid({ 
   projects, 
@@ -82,7 +83,7 @@ export default function ProjectGrid({
               >
                 <div className="project-image-wrap">
                   {(() => {
-                    const mainImg = proj.mainImage?.startsWith('http') || proj.mainImage?.startsWith('/uploads') ? `${backendUrl}${proj.mainImage}` : proj.mainImage;
+                    const mainImg = formatImageUrl(proj.mainImage, backendUrl);
                     const isVid = proj.mainImageResourceType === 'video' || mainImg.includes('/video/upload/') || /\.(mp4|mov|webm|ogv)($|\?)/i.test(mainImg);
                     return isVid ? (
                       <video

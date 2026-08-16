@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { formatImageUrl } from '../utils/imageUtils';
 
 export default function CategorySection({ categories, projects, onCategorySelect, activeCategory, backendUrl }) {
   const sectionRef = useRef(null);
@@ -59,7 +60,7 @@ export default function CategorySection({ categories, projects, onCategorySelect
             >
               <div className="category-arch">
                 <img 
-                  src={cat.image?.startsWith('http') || cat.image?.startsWith('/uploads') ? `${backendUrl}${cat.image}` : cat.image} 
+                  src={formatImageUrl(cat.image, backendUrl)} 
                   alt={cat.name} 
                   className="category-img"
                   style={{ objectPosition: cat.imagePosition || '50% 50%' }}

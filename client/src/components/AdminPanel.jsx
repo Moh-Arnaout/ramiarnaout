@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Lock, Plus, Edit, Trash2, Upload, FileText, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { formatImageUrl } from '../utils/imageUtils';
 
 function ImagePositionControls({ value, onChange }) {
   const parts = (value || '50% 50%').split(' ');
@@ -96,7 +97,7 @@ export default function AdminPanel({
       setAuthError('');
       onUnlockDashboard?.();
     } else {
-      setAuthError('Invalid passcode. Try "adminrami56"');
+      setAuthError('Invalid passcode. Try again!');
     }
   };
 
@@ -139,7 +140,7 @@ export default function AdminPanel({
     if (editingCategory) {
       setCategoryName(editingCategory.name);
       setCategoryFile(null);
-      setCategoryFilePreview(editingCategory.image ? (editingCategory.image.startsWith('http') || editingCategory.image.startsWith('/uploads') ? `${backendUrl}${editingCategory.image}` : editingCategory.image) : '');
+      setCategoryFilePreview(editingCategory.image ? formatImageUrl(editingCategory.image, backendUrl) : '');
       setCategoryImagePosition(editingCategory.imagePosition || '50% 50%');
     } else {
       clearCategoryForm();
@@ -467,14 +468,14 @@ export default function AdminPanel({
                               <div className="upload-preview-card" style={{ border: idx === 0 ? '2px solid var(--accent-orange)' : '', position: 'relative' }}>
                                 {isVideo ? (
                                   <video
-                                    src={img.startsWith('http') || img.startsWith('/uploads') ? `${backendUrl}${img}` : img}
+                                    src={formatImageUrl(img, backendUrl)}
                                     className="upload-preview-img"
                                     style={{ objectFit: 'cover', width: '100%', height: '100%' }}
                                     controls
                                   />
                                 ) : (
                                   <img
-                                    src={img.startsWith('http') || img.startsWith('/uploads') ? `${backendUrl}${img}` : img}
+                                    src={formatImageUrl(img, backendUrl)}
                                     alt="Existing Preview"
                                     className="upload-preview-img"
                                     style={{ objectPosition: pos }}
@@ -562,7 +563,7 @@ export default function AdminPanel({
                   <div key={proj.id} className="admin-list-item">
                     <div className="admin-item-left">
                       {(() => {
-                        const mainImg = proj.mainImage.startsWith('http') || proj.mainImage.startsWith('/uploads') ? `${backendUrl}${proj.mainImage}` : proj.mainImage;
+                        const mainImg = formatImageUrl(proj.mainImage, backendUrl);
                         const isVid = proj.mainImageResourceType === 'video' || mainImg.includes('/video/upload/') || /\.(mp4|mov|webm|ogv)($|\?)/i.test(mainImg);
                         return isVid ? (
                           <video
@@ -646,10 +647,10 @@ export default function AdminPanel({
                     <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Selected Photo:</span>
                       <div className="upload-preview-card" style={{ width: '120px', height: '170px', position: 'relative' }}>
-                        <img 
-                          src={categoryFilePreview} 
-                          alt="Category preview" 
-                          className="upload-preview-img" 
+                        <img
+                          src={categoryFilePreview}
+                          alt="Category preview"
+                          className="upload-preview-img"
                           style={{ objectPosition: categoryImagePosition }}
                         />
                       </div>
@@ -683,7 +684,7 @@ export default function AdminPanel({
                 <div key={cat.id} className="admin-list-item">
                   <div className="admin-item-left">
                     <img
-                      src={cat.image.startsWith('http') || cat.image.startsWith('/uploads') ? `${backendUrl}${cat.image}` : cat.image}
+                      src={formatImageUrl(cat.image, backendUrl)}
                       className="admin-item-thumb"
                       alt=""
                       style={{ height: '70px', width: '50px', borderRadius: '4px', objectFit: 'cover', objectPosition: cat.imagePosition || '50% 50%' }}
@@ -802,7 +803,7 @@ export default function AdminPanel({
                       <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Selected Photo:</span>
                       <div className="upload-preview-card" style={{ width: '120px', height: '120px', position: 'relative' }}>
                         <img
-                          src={awardFilePreview || (existingAwardImage.startsWith('http') || existingAwardImage.startsWith('/uploads') ? `${backendUrl}${existingAwardImage}` : existingAwardImage)}
+                          src={awardFilePreview || (existingAwardImage ? formatImageUrl(existingAwardImage, backendUrl) : '')}
                           alt="Award preview"
                           className="upload-preview-img"
                           style={{ objectPosition: awardImagePosition }}
@@ -838,7 +839,7 @@ export default function AdminPanel({
                 <div key={aw.id} className="admin-list-item">
                   <div className="admin-item-left">
                     <img
-                      src={aw.image ? (aw.image.startsWith('http') || aw.image.startsWith('/uploads') ? `${backendUrl}${aw.image}` : aw.image) : `${backendUrl}/uploads/logo.png`}
+                      src={formatImageUrl(aw.image, backendUrl)}
                       className="admin-item-thumb"
                       alt=""
                       style={{ height: '70px', width: '70px', borderRadius: '4px', objectFit: 'cover', objectPosition: aw.imagePosition || '50% 50%' }}

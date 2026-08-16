@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import fallbackPortfolioData from '../../server/data/projectsData.js';
 import supabase from '../../server/config/supabase.js';
 
@@ -20,6 +21,17 @@ function normalizeCategoryRow(category) {
   };
 }
 
+function serializeCategoryRow({ id, name, image, imagePublicId, imageResourceType, imagePosition }) {
+  return {
+    id,
+    name,
+    image: image || '/uploads/logo.png',
+    image_public_id: imagePublicId || '',
+    image_resource_type: imageResourceType || 'image',
+    image_position: imagePosition || '50% 50%'
+  };
+}
+
 function normalizeProjectRow(project) {
   if (!project) return null;
   return {
@@ -39,6 +51,28 @@ function normalizeProjectRow(project) {
   };
 }
 
+function serializeProjectRow({
+  id, title, description, category, date, location, images,
+  imagePublicIds, imageResourceTypes, mainImage, mainImagePublicId,
+  mainImageResourceType, imagePositions
+}) {
+  return {
+    id,
+    title,
+    description: description || '',
+    category: category || '',
+    date: date || '',
+    location: location || '',
+    images: images || [],
+    image_public_ids: imagePublicIds || [],
+    image_resource_types: imageResourceTypes || [],
+    main_image: mainImage || '/uploads/logo.png',
+    main_image_public_id: mainImagePublicId || '',
+    main_image_resource_type: mainImageResourceType || 'image',
+    image_positions: imagePositions || []
+  };
+}
+
 function normalizeAwardRow(award) {
   if (!award) return null;
   return {
@@ -55,6 +89,21 @@ function normalizeAwardRow(award) {
   };
 }
 
+function serializeAwardRow({ id, project, year, location, award, office, image, imagePublicId, imageResourceType, imagePosition }) {
+  return {
+    id,
+    project,
+    year,
+    location: location || '',
+    award: award || '',
+    office: office || '',
+    image: image || '',
+    image_public_id: imagePublicId || '',
+    image_resource_type: imageResourceType || 'image',
+    image_position: imagePosition || '50% 50%'
+  };
+}
+
 export const handler = async (event = {}) => {
   if (event.httpMethod === 'OPTIONS') {
     return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
@@ -65,9 +114,21 @@ export const handler = async (event = {}) => {
   const path = cleanPath.startsWith('/api') ? cleanPath.replace('/api', '') || '/' : cleanPath;
   const method = event.httpMethod || 'GET';
 
+  let body = {};
+  if (event.body) {
+    try {
+      body = JSON.parse(event.body);
+    } catch (e) {
+      body = {};
+    }
+  }
+
   try {
-    if (method === 'GET') {
-      if (path === '/categories' || path === '/') {
+    // ----------------------------------------------------
+    // CATEGORIES
+    // ----------------------------------------------------
+    if (path === '/categories' || path === '/') {
+      if (method === 'GET') {
         let categories = (fallbackPortfolioData.categories || []).map(normalizeCategoryRow);
         if (supabase) {
           try {
@@ -82,7 +143,47 @@ export const handler = async (event = {}) => {
         return { statusCode: 200, headers, body: JSON.stringify(categories) };
       }
 
-      if (path === '/projects') {
+      if (method === 'POST') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const { name, imagePosition, image } = body;
+        let id = name?.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || `cat-${Date.now()}`;
+        const newCat = serializeCategoryRow({ id, name, image, imagePosition });
+        const { data, error } = await supabase.from('categories').insert([newCat]).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 201, headers, body: JSON.stringify(normalizeCategoryRow(data)) };
+      }
+    }
+
+    if (path.startsWith('/categories/')) {
+      const id = path.replace('/categories/', '');
+      if (method === 'PUT') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const { name, imagePosition, image } = body;
+        const updated = serializeCategoryRow({ id, name, image, imagePosition });
+        const { data, error } = await supabase.from('categories').update(updated).eq('id', id).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify(normalizeCategoryRow(data)) };
+      }
+
+      if (method === 'DELETE') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const { error } = await supabase.from('categories').delete().eq('id', id);
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify({ message: 'Category deleted successfully' }) };
+      }
+    }
+
+    // ----------------------------------------------------
+    // PROJECTS
+    // ----------------------------------------------------
+    if (path === '/projects') {
+      if (method === 'GET') {
         let projects = (fallbackPortfolioData.projects || []).map(normalizeProjectRow);
         if (supabase) {
           try {
@@ -97,7 +198,45 @@ export const handler = async (event = {}) => {
         return { statusCode: 200, headers, body: JSON.stringify(projects) };
       }
 
-      if (path === '/awards') {
+      if (method === 'POST') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const id = crypto.randomBytes(8).toString('hex');
+        const newProj = serializeProjectRow({ ...body, id });
+        const { data, error } = await supabase.from('projects').insert([newProj]).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 201, headers, body: JSON.stringify(normalizeProjectRow(data)) };
+      }
+    }
+
+    if (path.startsWith('/projects/')) {
+      const id = path.replace('/projects/', '');
+      if (method === 'PUT') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const updatedProj = serializeProjectRow({ ...body, id });
+        const { data, error } = await supabase.from('projects').update(updatedProj).eq('id', id).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify(normalizeProjectRow(data)) };
+      }
+
+      if (method === 'DELETE') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify({ message: 'Project deleted successfully' }) };
+      }
+    }
+
+    // ----------------------------------------------------
+    // AWARDS
+    // ----------------------------------------------------
+    if (path === '/awards') {
+      if (method === 'GET') {
         let awards = (fallbackPortfolioData.awards || []).map(normalizeAwardRow);
         if (supabase) {
           try {
@@ -110,6 +249,39 @@ export const handler = async (event = {}) => {
           }
         }
         return { statusCode: 200, headers, body: JSON.stringify(awards) };
+      }
+
+      if (method === 'POST') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const id = crypto.randomBytes(8).toString('hex');
+        const newAward = serializeAwardRow({ ...body, id });
+        const { data, error } = await supabase.from('awards').insert([newAward]).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 201, headers, body: JSON.stringify(normalizeAwardRow(data)) };
+      }
+    }
+
+    if (path.startsWith('/awards/')) {
+      const id = path.replace('/awards/', '');
+      if (method === 'PUT') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const updatedAward = serializeAwardRow({ ...body, id });
+        const { data, error } = await supabase.from('awards').update(updatedAward).eq('id', id).select().single();
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify(normalizeAwardRow(data)) };
+      }
+
+      if (method === 'DELETE') {
+        if (!supabase) {
+          return { statusCode: 503, headers, body: JSON.stringify({ error: 'Database configuration unavailable on Netlify serverless environment.' }) };
+        }
+        const { error } = await supabase.from('awards').delete().eq('id', id);
+        if (error) return { statusCode: 400, headers, body: JSON.stringify({ error: error.message }) };
+        return { statusCode: 200, headers, body: JSON.stringify({ message: 'Award deleted successfully' }) };
       }
     }
 

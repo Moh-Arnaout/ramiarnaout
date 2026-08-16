@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, MapPin, Calendar, Layers, ZoomIn, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { formatImageUrl } from '../utils/imageUtils';
 
 export default function ProjectDetails({ project, categories, onClose, backendUrl }) {
   const [activeImageIdx, setActiveImageIdx] = useState(0);
@@ -37,10 +38,7 @@ export default function ProjectDetails({ project, categories, onClose, backendUr
   };
 
   const getFullImageUrl = (path) => {
-    if (path?.startsWith('http') || path?.startsWith('/uploads')) {
-      return `${backendUrl}${path}`;
-    }
-    return path || `${backendUrl}/uploads/logo.png`;
+    return formatImageUrl(path, backendUrl);
   };
 
   return (
