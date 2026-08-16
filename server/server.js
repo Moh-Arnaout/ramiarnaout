@@ -108,7 +108,7 @@ function serializeProjectRow({
     id,
     title,
     description: description || '',
-    category: category || '',
+    category: (category && String(category).trim()) ? String(category).trim() : null,
     date: date || '',
     location: location || '',
     images: images || [],
